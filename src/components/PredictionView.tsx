@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import { Brain, Sparkles, TrendingUp, Calendar, RefreshCw, Sliders, ShieldCheck } from 'lucide-react';
+import { Brain, Sparkles, TrendingUp, Calendar, RefreshCw, Sliders, ShieldCheck, Download, UploadCloud, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { MedicalItem } from '../types';
+import { validateCSVTemplate, parseCSV } from '../utils/inventoryEngine';
 
 interface PredictionViewProps {
   items: MedicalItem[];
+  onAddItems?: (newItems: Partial<MedicalItem>[]) => void;
 }
 
-export default function PredictionView({ items }: PredictionViewProps) {
+export default function PredictionView({ items, onAddItems }: PredictionViewProps) {
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importSuccess, setImportSuccess] = useState<string | null>(null);
+
   // معاملات التعديل والمحاكاة لتوقعات الذكاء الاصطناعي
   const [seasonalCoefficient, setSeasonalCoefficient] = useState<number>(1.15); // معامل الموسمية والتفشي الطبيعي
   const [safetyBufferPercent, setSafetyBufferPercent] = useState<number>(10); // هامش الطوارئ الطبي الإضافي
@@ -53,6 +58,55 @@ export default function PredictionView({ items }: PredictionViewProps) {
     };
   });
 
+  const handleExport = () => {
+    // تصدير بيانات التنبؤات والاحتياجات
+    let csvContent = 'كود الصنف,اسم الصنف,الفئة,الاستهلاك الحالي,التنبؤ للشهر القادم,التنبؤ للربع القادم,التنبؤ للسنة القادمة\n';
+    predictions.forEach(p => {
+      csvContent += `"${p.id}","${p.name}","${p.category}","${p.monthlyConsumption} / شهر","${p.nextMonthPrediction}","${p.nextQuarterPrediction}","${p.nextYearPrediction}"\n`;
+    });
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `تنبؤات_احتياجات_المخزون_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImportError(null);
+    setImportSuccess(null);
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv') && !file.name.endsWith('.txt')) {
+      setImportError('عذراً، يجب تحميل ملف CSV أو ملف نصي مفصول بفواصل فقط.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      const validation = validateCSVTemplate(text);
+      if (!validation.isValid) {
+        setImportError(validation.error || 'تنسيق شيت الاستيراد غير صحيح.');
+        return;
+      }
+
+      const parsed = parseCSV(text);
+      if (parsed.length > 0 && onAddItems) {
+        onAddItems(parsed);
+        setImportSuccess(`تم استيراد وتحديث ${parsed.length} صنف طبي في لوحة التنبؤات بنجاح!`);
+      } else if (!onAddItems) {
+        setImportError('ميزة التحديث غير مهيأة حالياً في هذا الجزء من التطبيق.');
+      } else {
+        setImportError('لم نتمكن من قراءة البيانات بالشكل الصحيح.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div id="prediction-view-container" className="space-y-8 py-2 text-right" dir="rtl">
       
@@ -64,7 +118,42 @@ export default function PredictionView({ items }: PredictionViewProps) {
             تقديرات حسابية متقدمة لحجم الاستهلاك المتوقع للشهر والربع والسنة القادمة لمساعدة إدارة المشتريات على إعداد الموازنات الطبية
           </p>
         </div>
+        
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleExport}
+            className="px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-slate-800 dark:text-blue-300 font-bold rounded-xl text-xs flex items-center gap-2 cursor-pointer transition-all border border-blue-100/30"
+          >
+            <Download className="w-4 h-4" />
+            <span>تصدير تقرير التنبؤات</span>
+          </button>
+          
+          <label className="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 font-bold rounded-xl text-xs flex items-center gap-2 cursor-pointer transition-all border border-emerald-100/30">
+            <UploadCloud className="w-4 h-4" />
+            <span>استيراد وتحديث البيانات</span>
+            <input 
+              type="file" 
+              accept=".csv,.txt" 
+              className="hidden" 
+              onChange={handleImportFile}
+            />
+          </label>
+        </div>
       </div>
+
+      {importError && (
+        <div className="flex items-center gap-2 p-2.5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-semibold">
+          <AlertCircle className="w-4 h-4" />
+          <span>{importError}</span>
+        </div>
+      )}
+
+      {importSuccess && (
+        <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 rounded-xl text-xs font-semibold">
+          <CheckCircle2 className="w-4 h-4" />
+          <span>{importSuccess}</span>
+        </div>
+      )}
 
       {/* لوحة التحكم اللوجستية (Sliders) للتوقعات */}
       <div className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-2xs space-y-6">

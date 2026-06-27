@@ -36,7 +36,7 @@ export default function ReportsView({ items, availabilityRate, totalValue }: Rep
     const reportMetadata = `تاريخ التقرير: ${new Date().toISOString().split('T')[0]}\nالجهة: إدارة سلاسل الإمداد والخدمات اللوجستية الطبية المشتركة\n\n`;
     
     const section1 = `1. ملخص مؤشرات الأداء:\n`;
-    const kpis = `- إجمالي قيمة المخزون الحالي: ${totalValue.toLocaleString('ar-SA')} ر.س\n- نسبة توافر المستلزمات واللقاحات: ${availabilityRate}%\n- الأصناف الطبية الكلية: ${items.length} صنف\n- أصناف حرجة تتطلب تدخلاً سريعاً: ${criticalItems.length} صنف\n- أصناف تتطلب إعادة توريد فوري: ${reorderItems.length} صنف\n\n`;
+    const kpis = `- إجمالي قيمة المخزون الحالي: ${totalValue.toLocaleString('ar-EG')} ج.م\n- نسبة توافر المستلزمات واللقاحات: ${availabilityRate}%\n- الأصناف الطبية الكلية: ${items.length} صنف\n- أصناف حرجة تتطلب تدخلاً سريعاً: ${criticalItems.length} صنف\n- أصناف تتطلب إعادة توريد فوري: ${reorderItems.length} صنف\n\n`;
 
     const section2 = `2. التوصيات الاستراتيجية المعتمدة:\n`;
     const recs = `- تسريع دورة توريد الأصناف الحرجة الموضحة بالتقرير لضمان استمرارية العمل الطبي.\n- إعادة هيكلة كميات الأمان وصيغ ROP للمستلزمات ذات الاستقرار المنخفض فئة Z.\n- تصفية الأصناف الراكدة لتوفير مساحات المستودعات الطبية وتقليل الهدر المالي.\n`;
@@ -110,7 +110,7 @@ export default function ReportsView({ items, availabilityRate, totalValue }: Rep
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-4">
           <div className="space-y-1">
             <span className="block text-[11px] text-slate-400 font-bold">قيمة مستودع الأدوية</span>
-            <span className="block text-lg font-black text-slate-800 dark:text-slate-100">{totalValue.toLocaleString('ar-SA')} ر.س</span>
+            <span className="block text-lg font-black text-slate-800 dark:text-slate-100">{totalValue.toLocaleString('ar-EG')} ج.م</span>
           </div>
           <div className="space-y-1">
             <span className="block text-[11px] text-slate-400 font-bold">معدل توافر الأصناف</span>

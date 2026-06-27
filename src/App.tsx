@@ -20,6 +20,12 @@ import SettingsView from './components/SettingsView';
 import ProfileView from './components/ProfileView';
 import AuthScreen from './components/AuthScreen';
 import UserManagementView from './components/UserManagementView';
+import CategoriesView from './components/CategoriesView';
+import SuppliersView from './components/SuppliersView';
+import PurchaseOrdersView from './components/PurchaseOrdersView';
+import ForecastView from './components/ForecastView';
+import XyzView from './components/XyzView';
+import AboutView from './components/AboutView';
 
 export default function App() {
   // شاشة التحميل الاحترافية الأولية للتطبيق
@@ -38,7 +44,7 @@ export default function App() {
   const [chatError, setChatError] = useState<string | null>(null);
 
   // التبويب والوضع الليلي
-  const [currentTab, setCurrentTab] = useState<ViewTab>('landing');
+  const [currentTab, setCurrentTab] = useState<ViewTab>('dashboard');
   const [darkMode, setDarkMode] = useState(false);
 
   // شاشة تحميل أولية لمحاكاة تهيئة السحابة والاتصالات الأمنية
@@ -255,13 +261,14 @@ export default function App() {
           
           {/* الانتقال الشرطي والسلس بين علامات التبويب */}
           <div className="transition-all duration-250 ease-out">
-            {currentTab === 'landing' && (
-              <LandingPage 
+            {currentTab === 'dashboard' && (
+              <DashboardView 
+                items={items}
+                alerts={alerts}
+                onDismissAlert={handleDismissAlert}
                 onNavigate={setCurrentTab}
-                totalItems={items.length}
-                criticalCount={criticalCount}
-                totalValue={totalValue}
-                availabilityRate={availabilityRate}
+                onQuickOrder={handleQuickOrderDirectly}
+                onAddItems={handleAddItems}
               />
             )}
 
@@ -275,36 +282,57 @@ export default function App() {
               />
             )}
 
-            {currentTab === 'dashboard' && (
-              <DashboardView 
+            {currentTab === 'categories' && (
+              <CategoriesView 
                 items={items}
-                alerts={alerts}
-                onDismissAlert={handleDismissAlert}
                 onNavigate={setCurrentTab}
-                onQuickOrder={handleQuickOrderDirectly}
-                onAddItems={handleAddItems}
+              />
+            )}
+
+            {currentTab === 'suppliers' && (
+              <SuppliersView 
+                items={items}
+              />
+            )}
+
+            {currentTab === 'purchase-requests' && (
+              <div className="space-y-8">
+                <ReorderView 
+                  items={items}
+                  onOrderCompleted={handleOrderCompleted}
+                />
+                <div className="pt-8 border-t border-slate-100 dark:border-slate-850">
+                  <PredictionView 
+                    items={items}
+                    onAddItems={handleAddItems}
+                  />
+                </div>
+              </div>
+            )}
+
+            {currentTab === 'purchase-orders' && (
+              <PurchaseOrdersView 
+                items={items}
+              />
+            )}
+
+            {currentTab === 'forecast' && (
+              <ForecastView 
+                items={items}
               />
             )}
 
             {currentTab === 'abc-analysis' && (
               <AnalysisView 
                 items={items}
+                onAddItems={handleAddItems}
               />
             )}
 
-            {currentTab === 'predictions' && (
-              <ReorderView 
+            {currentTab === 'xyz-analysis' && (
+              <XyzView 
                 items={items}
-                onOrderCompleted={handleOrderCompleted}
               />
-            )}
-
-            {currentTab === 'predictions' && (
-              <div className="pt-8 border-t border-slate-100 dark:border-slate-850">
-                <PredictionView 
-                  items={items}
-                />
-              </div>
             )}
 
             {currentTab === 'reports' && (
@@ -333,6 +361,10 @@ export default function App() {
               />
             )}
 
+            {currentTab === 'about' && (
+              <AboutView />
+            )}
+
             {currentTab === 'profile' && (
               <ProfileView 
                 user={user}
@@ -345,7 +377,7 @@ export default function App() {
                 currentUser={user}
                 onSwitchUser={(newUser) => {
                   setUser(newUser);
-                  setCurrentTab('landing');
+                  setCurrentTab('dashboard');
                 }}
               />
             )}

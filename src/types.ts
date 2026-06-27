@@ -53,13 +53,18 @@ export interface UserProfile {
 }
 
 export type ViewTab =
-  | 'landing'
-  | 'inventory'
-  | 'predictions'
-  | 'abc-analysis'
   | 'dashboard'
+  | 'inventory'
+  | 'categories'
+  | 'suppliers'
+  | 'purchase-requests'
+  | 'purchase-orders'
+  | 'forecast'
+  | 'abc-analysis'
+  | 'xyz-analysis'
   | 'reports'
   | 'assistant'
   | 'settings'
+  | 'about'
   | 'profile'
   | 'user-management';
