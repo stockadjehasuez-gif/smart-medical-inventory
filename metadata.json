@@ -1,0 +1,6 @@
+{
+  "name": "مساعد إدارة المخزون الطبي الذكي",
+  "description": "منصة ذكية متكاملة باللغة العربية لإدارة وتحليل المخزون الطبي والتنبؤ بالاحتياجات ومراقبة الأصناف الحرجة باستخدام الذكاء الاصطناعي.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
